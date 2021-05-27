@@ -113,6 +113,47 @@ def time_indexed_LAS(file):
     
     df = time_builder(file,start_line)
     return(df)
+#New time indexed
+def new_time_indexed_LAS(file):
+    #print("File:",file,"\n")
+    with open(file, 'r',encoding = "latin1") as f:
+        text_ = f.readlines()[0:]
+    
+    i = 0;
+    for line in text_:
+        #print("Line {}: {}".format(i,line.strip()))
+        if "#  " in line.strip():
+            i_columns = i 
+            #print(text_[i])
+            #print(text_[i+5:])
+            break         
+        i+=1
+    
+    cols = str(text_[i_columns]).split()
+    del cols[0]
+    data = (text_[i+5:])
+    data_list = []
+    for i in range(len(data)):
+        act = data[i].split()
+        data_list.append(act)
+        i+=1
+    df = pd.DataFrame(data_list,columns = cols)
+    df["DateTime"] = pd.to_datetime(df["TIME"])
+    #del df["TIME"]
+    df = df.replace(-999.250000, np.nan)
+    df = df.replace(-999.25, np.nan)
+    new_df = df.apply(pd.to_numeric, errors='ignore')
+    new_df["DateTime"] = df["DateTime"] 
+    print("Total rows : ",len(df))
+    print("Columns:\n",df.columns.values)
+    print("Initial depth:",df["DEPTH"][0])
+    print("Initial date:", df["DateTime"][0].strftime('%d-%B-%Y'))
+    print("DeltaTime:",df["DateTime"][1]-df["DateTime"][0],"\n\n")
+    del new_df["TIME"]
+    new_df = new_df.replace(-999.250000, np.nan)
+    new_dfdf = new_df.replace(-999.25, np.nan)
+    return(new_df)
+
 #plotting well data
 def well_plt(data,info):
     plt.style.use("seaborn")
@@ -278,6 +319,15 @@ def ss_severity(data):
     data["ss_categorical_txt"] = ss_categorical_txt
     
     return(data)
+
+def outlier_removal(df):
+    Q1 = df.quantile(0.25)
+    Q3 = df.quantile(0.75)
+    IQR = Q3 - Q1
+    df_new = df[~((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)]
+    return(df_new)
+
+
 
     
    

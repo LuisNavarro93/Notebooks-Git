@@ -28,7 +28,7 @@ def read_xml(file):
     print("Start date:",data_xml.find_all('dTimTrajEnd')[0].text)
     len_ = len(data_xml.find_all('statusTrajStation'))
     print("Final md :",data_xml.find_all('md')[len_-1].text,"[m]")
-    print("Surveys:",len_,"\n\n")
+    #print("Surveys:",len_,"\n\n")
     tvd = data_xml.find_all('incl')
     cols =['md','tvd','dispNs','dispEw','incl','azi','dls']
     well = pd.DataFrame()
